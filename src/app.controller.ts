@@ -53,6 +53,14 @@ export class AppController {
     return this.appService.getDndSnapshot();
   }
 
+  @Get('v1/dnd/:consultant')
+  getDndState(@Param('consultant') consultant: string) {
+    return {
+      consultant,
+      enabled: this.appService.isDndEnabled(consultant),
+    };
+  }
+
   @Put('v1/dnd/:consultant')
   async setDndState(
     @Param('consultant') consultant: string,

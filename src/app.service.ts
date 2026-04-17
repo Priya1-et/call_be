@@ -171,6 +171,10 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
     );
   }
 
+  isDndEnabled(consultant: string): boolean {
+    return this.dndState.get(consultant) ?? false;
+  }
+
   getDndSnapshot(): Record<string, boolean> {
     return Object.fromEntries(this.dndState.entries());
   }
