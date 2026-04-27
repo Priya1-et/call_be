@@ -64,6 +64,27 @@ export class AppController {
     return call;
   }
 
+  @Get('v1/calls/:callId/events')
+  getCallEvents(@Param('callId') callId: string) {
+    this.logger.log(`[GET /v1/calls/${callId}/events]`);
+    const events = this.appService.readCallEvents(callId);
+    return { callId, count: events.length, events };
+  }
+
+  @Get('v1/logs/events')
+  getEventsTail(@Query('limit') limit?: string) {
+    const n = limit ? Number.parseInt(limit, 10) : 200;
+    this.logger.log(`[GET /v1/logs/events] limit=${n}`);
+    return { count: 0, events: this.appService.readEventLogTail(Number.isNaN(n) ? 200 : n) };
+  }
+
+  @Get('v1/logs/summary')
+  getSummaryTail(@Query('limit') limit?: string) {
+    const n = limit ? Number.parseInt(limit, 10) : 200;
+    this.logger.log(`[GET /v1/logs/summary] limit=${n}`);
+    return { count: 0, summaries: this.appService.readSummaryLogTail(Number.isNaN(n) ? 200 : n) };
+  }
+
   @Get('v1/dnd')
   getDndSnapshot() {
     this.logger.log('[GET /v1/dnd]');
