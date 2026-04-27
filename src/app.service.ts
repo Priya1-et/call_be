@@ -108,17 +108,27 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
 
   async ingestAsteriskEvent(event: AsteriskEvent): Promise<void> {
     const timestamp = event.timestamp ?? new Date().toISOString();
+    this.logger.log(
+      `[event.ingest] type=${event.eventType} callId=${event.callId ?? '-'} consultant=${event.consultant ?? '-'} phone=${event.phoneNumber ?? '-'}`,
+    );
 
     if (event.eventType === 'DNDon' || event.eventType === 'DNDoff') {
       if (!event.consultant) {
+        this.logger.warn('[event.ingest] DND event missing consultant');
         throw new Error('consultant is required for DND events');
       }
       const enabled = event.eventType === 'DNDon';
       await this.setDnd(event.consultant, enabled);
+      this.logger.log(
+        `[event.ingest] DND consultant=${event.consultant} enabled=${enabled}`,
+      );
       return;
     }
 
     if (!event.callId || !event.consultant || !event.phoneNumber) {
+      this.logger.warn(
+        '[event.ingest] missing required fields for call event',
+      );
       throw new Error('callId, consultant and phoneNumber are required for call events');
     }
 
@@ -155,6 +165,9 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
 
     this.calls.set(baseCall.callId, baseCall);
     await this.persistCall(baseCall);
+    this.logger.log(
+      `[event.ingest] saved callId=${baseCall.callId} status=${baseCall.status} direction=${baseCall.direction}`,
+    );
   }
 
   async setDnd(consultant: string, enabled: boolean): Promise<void> {
